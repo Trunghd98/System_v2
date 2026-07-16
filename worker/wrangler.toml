@@ -6,7 +6,7 @@ compatibility_date = "2025-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "tcnf"
-database_id = "PASTE_DATABASE_ID_HERE"
+database_id = "073295a5-570a-48ca-a37b-2e9db8e02064"
 migrations_dir = "migrations"
 
 # Biến công khai (không bí mật). Secrets (JWT_SECRET, GOOGLE_OAUTH_CLIENT_ID) đặt bằng:
