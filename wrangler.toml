@@ -1,0 +1,16 @@
+name = "tcnf-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# Sau khi chạy: wrangler d1 create tcnf  → dán database_id vào đây
+[[d1_databases]]
+binding = "DB"
+database_name = "tcnf"
+database_id = "PASTE_DATABASE_ID_HERE"
+migrations_dir = "migrations"
+
+# Biến công khai (không bí mật). Secrets (JWT_SECRET, GOOGLE_OAUTH_CLIENT_ID) đặt bằng:
+#   wrangler secret put JWT_SECRET
+#   wrangler secret put GOOGLE_OAUTH_CLIENT_ID
+[vars]
+ALLOWED_ORIGIN = "http://localhost:5173"
