@@ -1,12 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-
-export interface Env {
-  DB: D1Database;
-  JWT_SECRET: string;
-  GOOGLE_OAUTH_CLIENT_ID: string;
-  ALLOWED_ORIGIN: string;
-}
+import type { Env } from './env';
+import { dispatch } from './dispatch';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -29,8 +24,15 @@ app.get('/me', (c) =>
   c.json({ ok: false, error: 'Chưa cài đặt: /me (GĐ5)' }, 501));
 
 app.post('/api', async (c) => {
-  const body = (await c.req.json().catch(() => ({}))) as { action?: string };
-  return c.json({ ok: false, error: `Chưa cài đặt action: ${body.action ?? '(trống)'}` }, 501);
+  const body = (await c.req.json().catch(() => ({}))) as { action?: string; payload?: Record<string, unknown> };
+  if (!body.action) return c.json({ ok: false, error: 'Thiếu action' }, 400);
+  try {
+    const data = await dispatch(body.action, c.env, body.payload ?? {});
+    return c.json({ ok: true, data });
+  } catch (e) {
+    const err = e as Error & { status?: number };
+    return c.json({ ok: false, error: err.message ?? 'Lỗi' }, (err.status ?? 500) as 500);
+  }
 });
 
 app.notFound((c) => c.json({ ok: false, error: 'Not found' }, 404));
