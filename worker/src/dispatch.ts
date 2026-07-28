@@ -1,20 +1,40 @@
-import type { Env } from './env';
-import * as danhmuc from './repo/danhmuc';
+import type { Env } from "./env";
+import type { SessionUser } from "./auth";
+import * as danhmuc from "./repo/danhmuc";
 
-type Handler = (env: Env, payload: Record<string, unknown>) => Promise<unknown>;
+type Handler = (
+  env: Env,
+  payload: Record<string, unknown>,
+  user: SessionUser,
+) => Promise<unknown>;
 
-const handlers: Record<string, Handler> = {
-  dsNhanSu:  (env) => danhmuc.dsNhanSu(env.DB),
-  dsKhoaHoc: (env) => danhmuc.dsKhoaHoc(env.DB),
-  dsDoiTac:  (env) => danhmuc.dsDoiTac(env.DB),
+const MODULE_OF: Record<string, string> = {
+  dsNhanSu: "nhansu",
+  dsKhoaHoc: "tuyensinh",
+  dsDoiTac: "tuyensinh",
 };
 
-export async function dispatch(action: string, env: Env, payload: Record<string, unknown>) {
+const handlers: Record<string, Handler> = {
+  dsNhanSu: (env) => danhmuc.dsNhanSu(env.DB),
+  dsKhoaHoc: (env) => danhmuc.dsKhoaHoc(env.DB),
+  dsDoiTac: (env) => danhmuc.dsDoiTac(env.DB),
+};
+
+export async function dispatch(
+  action: string,
+  env: Env,
+  payload: Record<string, unknown>,
+  user: SessionUser,
+) {
   const h = handlers[action];
-  if (!h) {
-    const err = new Error('Action không hợp lệ: ' + action) as Error & { status?: number };
-    err.status = 400;
-    throw err;
-  }
-  return h(env, payload);
+  if (!h)
+    throw Object.assign(new Error("Action không hợp lệ: " + action), {
+      status: 400,
+    });
+  const mod = MODULE_OF[action];
+  if (mod && !user.modules.includes(mod))
+    throw Object.assign(new Error("Không có quyền dùng: " + action), {
+      status: 403,
+    });
+  return h(env, payload, user);
 }
