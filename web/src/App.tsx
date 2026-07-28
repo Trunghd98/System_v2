@@ -13,6 +13,9 @@ interface User {
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [err, setErr] = useState("");
+  const [action, setAction] = useState("dsNhanSu");
+  const [payload, setPayload] = useState("{}");
+  const [ketQua, setKetQua] = useState("");
 
   useEffect(() => {
     const s = document.createElement("script");
@@ -52,17 +55,29 @@ export default function App() {
     document.body.appendChild(s);
   }, []);
 
-  async function goiThu() {
+  async function goiAPI() {
+    setKetQua("Đang gọi…");
     const token = localStorage.getItem("tcnf_token");
-    const r = await fetch(`${API}/api`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ action: "dsKhoaHoc" }),
-    });
-    alert(JSON.stringify(await r.json(), null, 2));
+    let body: any;
+    try {
+      body = { action, payload: JSON.parse(payload || "{}") };
+    } catch {
+      setKetQua("⚠ Payload không phải JSON hợp lệ");
+      return;
+    }
+    try {
+      const r = await fetch(`${API}/api`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+      setKetQua(JSON.stringify(await r.json(), null, 2));
+    } catch (e: any) {
+      setKetQua(String(e));
+    }
   }
 
   function dangXuat() {
@@ -90,28 +105,19 @@ export default function App() {
   return (
     <div
       style={{
-        maxWidth: 520,
-        margin: "60px auto",
+        maxWidth: 720,
+        margin: "40px auto",
         fontFamily: "Inter, sans-serif",
+        padding: "0 16px",
       }}
     >
-      <h2 style={{ color: "#2F5C8F" }}>Xin chào {user.ho_ten}</h2>
-      <p>Email: {user.email}</p>
-      <p>Vai trò: {user.vaiTro.join(", ") || "(chưa gán)"}</p>
-      <p>Module: {user.modules.join(", ") || "(không)"}</p>
-      <button
-        onClick={goiThu}
-        style={{
-          background: "#E38B1E",
-          color: "#fff",
-          border: "none",
-          borderRadius: 12,
-          padding: "10px 16px",
-          cursor: "pointer",
-        }}
-      >
-        Gọi thử dsKhoaHoc
-      </button>{" "}
+      <h2 style={{ color: "#2F5C8F", marginBottom: 4 }}>
+        Xin chào {user.ho_ten}
+      </h2>
+      <p style={{ color: "#555", marginTop: 0 }}>
+        {user.email} · vai trò: {user.vaiTro.join(", ") || "(chưa gán)"} ·
+        module: {user.modules.join(", ")}
+      </p>
       <button
         onClick={dangXuat}
         style={{
@@ -119,12 +125,75 @@ export default function App() {
           color: "#2F5C8F",
           border: "none",
           borderRadius: 12,
-          padding: "10px 16px",
+          padding: "8px 14px",
           cursor: "pointer",
         }}
       >
         Đăng xuất
       </button>
+
+      <hr
+        style={{
+          margin: "20px 0",
+          border: "none",
+          borderTop: "1px solid #e2e8f0",
+        }}
+      />
+      <h3 style={{ color: "#2F5C8F" }}>
+        Bảng thử API (tạm — sẽ thay bằng giao diện ở GĐ7-8)
+      </h3>
+      <label style={{ fontSize: 13, color: "#555" }}>Action</label>
+      <input
+        value={action}
+        onChange={(e) => setAction(e.target.value)}
+        style={{
+          width: "100%",
+          padding: 8,
+          marginBottom: 8,
+          boxSizing: "border-box",
+        }}
+      />
+      <label style={{ fontSize: 13, color: "#555" }}>Payload (JSON)</label>
+      <textarea
+        value={payload}
+        onChange={(e) => setPayload(e.target.value)}
+        rows={5}
+        style={{
+          width: "100%",
+          padding: 8,
+          fontFamily: "monospace",
+          boxSizing: "border-box",
+        }}
+      />
+      <div style={{ marginTop: 8 }}>
+        <button
+          onClick={goiAPI}
+          style={{
+            background: "#E38B1E",
+            color: "#fff",
+            border: "none",
+            borderRadius: 12,
+            padding: "10px 18px",
+            cursor: "pointer",
+          }}
+        >
+          Gọi API
+        </button>
+      </div>
+      <pre
+        style={{
+          background: "#0d1117",
+          color: "#c9d1d9",
+          padding: 12,
+          borderRadius: 8,
+          marginTop: 12,
+          overflow: "auto",
+          maxHeight: 360,
+          fontSize: 12,
+        }}
+      >
+        {ketQua}
+      </pre>
     </div>
   );
 }

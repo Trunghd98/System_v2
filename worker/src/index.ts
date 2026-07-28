@@ -12,7 +12,7 @@ app.use(
     origin: (origin, c) => {
       const allow = (c.env.ALLOWED_ORIGIN || "")
         .split(",")
-        .map((s) => s.trim());
+        .map((s: string) => s.trim());
       return allow.includes(origin) ? origin : allow[0] || "";
     },
     allowMethods: ["GET", "POST", "OPTIONS"],
