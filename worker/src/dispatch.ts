@@ -3,6 +3,7 @@ import type { SessionUser } from "./auth";
 import * as danhmuc from "./repo/danhmuc";
 import * as nhansu from "./repo/nhansu";
 import * as tuyensinh from "./repo/tuyensinh";
+import * as vanhanh from "./repo/vanhanh";
 
 type Handler = (env: Env, payload: any, user: SessionUser) => Promise<unknown>;
 
@@ -26,6 +27,21 @@ const MODULE_OF: Record<string, string> = {
   dsGhiDanh: "tuyensinh",
   themGhiDanh: "tuyensinh",
   dsDoiTac: "tuyensinh",
+  // Vận hành
+  dsGiaoVien: "vanhanh",
+  dsLop: "vanhanh",
+  themLop: "vanhanh",
+  capNhatLop: "vanhanh",
+  dsGhiDanhChoLop: "vanhanh",
+  dsHocVienLop: "vanhanh",
+  themNhieuHocVienVaoLop: "vanhanh",
+  xoaHocVienKhoiLop: "vanhanh",
+  dsBuoiHoc: "vanhanh",
+  themBuoiHoc: "vanhanh",
+  taoBuoiHangLoat: "vanhanh",
+  capNhatBuoiHoc: "vanhanh",
+  dsDiemDanh: "vanhanh",
+  luuDiemDanh: "vanhanh",
 };
 
 const handlers: Record<string, Handler> = {
@@ -50,6 +66,24 @@ const handlers: Record<string, Handler> = {
   dsNguoiGioiThieu: (env) => tuyensinh.dsNguoiGioiThieu(env.DB),
   dsGhiDanh: (env) => tuyensinh.dsGhiDanh(env.DB),
   themGhiDanh: (env, p) => tuyensinh.themGhiDanh(env.DB, p),
+  // Vận hành — lớp
+  dsGiaoVien: (env) => vanhanh.dsGiaoVien(env.DB),
+  dsLop: (env) => vanhanh.dsLop(env.DB),
+  themLop: (env, p) => vanhanh.themLop(env.DB, p),
+  capNhatLop: (env, p) => vanhanh.capNhatLop(env.DB, p),
+  // Vận hành — xếp học viên
+  dsGhiDanhChoLop: (env, p) => vanhanh.dsGhiDanhChoLop(env.DB, p),
+  dsHocVienLop: (env, p) => vanhanh.dsHocVienLop(env.DB, p),
+  themNhieuHocVienVaoLop: (env, p) => vanhanh.themNhieuHocVienVaoLop(env.DB, p),
+  xoaHocVienKhoiLop: (env, p) => vanhanh.xoaHocVienKhoiLop(env.DB, p),
+  // Vận hành — buổi học
+  dsBuoiHoc: (env, p) => vanhanh.dsBuoiHoc(env.DB, p),
+  themBuoiHoc: (env, p) => vanhanh.themBuoiHoc(env.DB, p),
+  taoBuoiHangLoat: (env, p) => vanhanh.taoBuoiHangLoat(env.DB, p),
+  capNhatBuoiHoc: (env, p) => vanhanh.capNhatBuoiHoc(env.DB, p),
+  // Vận hành — điểm danh
+  dsDiemDanh: (env, p) => vanhanh.dsDiemDanh(env.DB, p),
+  luuDiemDanh: (env, p) => vanhanh.luuDiemDanh(env.DB, p),
   // Danh mục
   dsDoiTac: (env) => danhmuc.dsDoiTac(env.DB),
 };
