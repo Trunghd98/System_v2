@@ -4,6 +4,7 @@ import * as danhmuc from "./repo/danhmuc";
 import * as nhansu from "./repo/nhansu";
 import * as tuyensinh from "./repo/tuyensinh";
 import * as vanhanh from "./repo/vanhanh";
+import * as ketoan from "./repo/ketoan";
 
 type Handler = (env: Env, payload: any, user: SessionUser) => Promise<unknown>;
 
@@ -42,6 +43,11 @@ const MODULE_OF: Record<string, string> = {
   capNhatBuoiHoc: "vanhanh",
   dsDiemDanh: "vanhanh",
   luuDiemDanh: "vanhanh",
+  // Kế toán
+  sinhKhoanPhaiThu: "hocphi",
+  dsCongNo: "hocphi",
+  danhDauThu: "hocphi",
+  thuGop: "hocphi",
 };
 
 const handlers: Record<string, Handler> = {
@@ -84,6 +90,11 @@ const handlers: Record<string, Handler> = {
   // Vận hành — điểm danh
   dsDiemDanh: (env, p) => vanhanh.dsDiemDanh(env.DB, p),
   luuDiemDanh: (env, p) => vanhanh.luuDiemDanh(env.DB, p),
+  // Kế toán — công nợ
+  sinhKhoanPhaiThu: (env, p) => ketoan.sinhKhoanPhaiThu(env.DB, p),
+  dsCongNo: (env, p) => ketoan.dsCongNo(env.DB, p),
+  danhDauThu: (env, p) => ketoan.danhDauThu(env.DB, p),
+  thuGop: (env, p) => ketoan.thuGop(env.DB, p),
   // Danh mục
   dsDoiTac: (env) => danhmuc.dsDoiTac(env.DB),
 };
