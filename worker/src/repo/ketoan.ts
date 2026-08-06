@@ -284,3 +284,214 @@ export async function thuGop(db: D1Database, p: any) {
   if (dem === 0) throw loi("Học viên không còn khoản nào để thu");
   return { ok: true, so_khoan: dem, tong_thu: tong };
 }
+
+/* ==================== THU KHÁC ==================== */
+
+async function mapTen(db: D1Database): Promise<Record<string, string>> {
+  const ns = await query<any>(
+    db,
+    "SELECT staff_id AS id, ho_ten AS ten FROM nhansu",
+  );
+  const dt = await query<any>(
+    db,
+    "SELECT doitac_id AS id, ten_doi_tac AS ten FROM doitac",
+  );
+  const m: Record<string, string> = {};
+  ns.forEach((r) => {
+    m[r.id] = r.ten;
+  });
+  dt.forEach((r) => {
+    m[r.id] = r.ten;
+  });
+  return m;
+}
+
+export async function themThuKhac(db: D1Database, p: any) {
+  const so_tien = toInt(p.so_tien);
+  if (so_tien <= 0) throw loi("Nhập số tiền hợp lệ");
+  if (!p.nguoi_thu) throw loi("Chọn người thu");
+  const thu_id = "TK" + pad(await nextSeq(db, "SEQ_THUKHAC"), 5);
+  await run(
+    db,
+    "INSERT INTO thu_khac(thu_id,ngay,loai,noi_dung,so_tien,nguoi_thu,ghi_chu) VALUES(?,?,?,?,?,?,?)",
+    thu_id,
+    p.ngay || todayVN(),
+    p.loai || "khác",
+    p.noi_dung || "",
+    so_tien,
+    p.nguoi_thu,
+    p.ghi_chu || "",
+  );
+  return { thu_id };
+}
+
+export async function dsThuKhac(db: D1Database, p: any) {
+  const thang = kyStr(p.thang);
+  const ten = await mapTen(db);
+  const rows = thang
+    ? await query<any>(
+        db,
+        "SELECT * FROM thu_khac WHERE substr(ngay,1,7)=? ORDER BY ngay DESC, thu_id DESC",
+        thang,
+      )
+    : await query<any>(
+        db,
+        "SELECT * FROM thu_khac ORDER BY ngay DESC, thu_id DESC",
+      );
+  return rows.map((r) => ({
+    thu_id: r.thu_id,
+    ngay: r.ngay,
+    loai: r.loai,
+    noi_dung: r.noi_dung,
+    so_tien: toInt(r.so_tien),
+    nguoi_thu_id: r.nguoi_thu,
+    nguoi_thu_ten: ten[r.nguoi_thu] || r.nguoi_thu,
+    ghi_chu: r.ghi_chu,
+  }));
+}
+
+/* ==================== CHI ==================== */
+
+export async function themChi(db: D1Database, p: any) {
+  const so_tien = toInt(p.so_tien);
+  if (so_tien <= 0) throw loi("Nhập số tiền hợp lệ");
+  if (!String(p.noi_dung || "").trim()) throw loi("Nhập nội dung chi");
+  if (!p.nguoi_chi) throw loi("Chọn người chi");
+  const chi_id = "CHI" + pad(await nextSeq(db, "SEQ_CHI"), 5);
+  await run(
+    db,
+    "INSERT INTO chi(chi_id,ngay,loai,noi_dung,so_tien,nguoi_chi,ghi_chu) VALUES(?,?,?,?,?,?,?)",
+    chi_id,
+    p.ngay || todayVN(),
+    p.loai || "khác",
+    String(p.noi_dung).trim(),
+    so_tien,
+    p.nguoi_chi,
+    p.ghi_chu || "",
+  );
+  return { chi_id };
+}
+
+export async function dsChi(db: D1Database, p: any) {
+  const thang = kyStr(p.thang);
+  const ten = await mapTen(db);
+  const rows = thang
+    ? await query<any>(
+        db,
+        "SELECT * FROM chi WHERE substr(ngay,1,7)=? ORDER BY ngay DESC, chi_id DESC",
+        thang,
+      )
+    : await query<any>(db, "SELECT * FROM chi ORDER BY ngay DESC, chi_id DESC");
+  return rows.map((r) => ({
+    chi_id: r.chi_id,
+    ngay: r.ngay,
+    loai: r.loai,
+    noi_dung: r.noi_dung,
+    so_tien: toInt(r.so_tien),
+    nguoi_chi_id: r.nguoi_chi,
+    nguoi_chi_ten: ten[r.nguoi_chi] || r.nguoi_chi,
+    ghi_chu: r.ghi_chu,
+  }));
+}
+
+/* ==================== ĐỐI SOÁT ==================== */
+
+export async function dsDoiTacLN(db: D1Database) {
+  return query<any>(
+    db,
+    "SELECT staff_id, ho_ten FROM nhansu WHERE la_doi_tac_ln='có' AND trang_thai='đang_làm' ORDER BY staff_id",
+  );
+}
+
+export async function doiSoat(db: D1Database, p: any) {
+  const thang = kyStr(p.thang);
+  const dt = await dsDoiTacLN(db);
+  if (!dt.length)
+    throw loi(
+      "Chưa đánh dấu đối tác lợi nhuận nào (Nhân sự: la_doi_tac_ln=có)",
+    );
+
+  const thu = await query<any>(
+    db,
+    "SELECT so_tien_da_dong AS so_tien, nguoi_xac_nhan AS ng FROM hocphi WHERE trang_thai='đã_đóng' AND substr(ngay_dong,1,7)=?",
+    thang,
+  );
+  const thuK = await query<any>(
+    db,
+    "SELECT so_tien, nguoi_thu AS ng FROM thu_khac WHERE substr(ngay,1,7)=?",
+    thang,
+  );
+  const chi = await query<any>(
+    db,
+    "SELECT so_tien, nguoi_chi AS ng FROM chi WHERE substr(ngay,1,7)=?",
+    thang,
+  );
+
+  const thuMap: Record<string, number> = {},
+    chiMap: Record<string, number> = {};
+  let tongThu = 0,
+    tongChi = 0;
+  for (const t of thu) {
+    thuMap[t.ng] = (thuMap[t.ng] || 0) + toInt(t.so_tien);
+    tongThu += toInt(t.so_tien);
+  }
+  for (const t of thuK) {
+    thuMap[t.ng] = (thuMap[t.ng] || 0) + toInt(t.so_tien);
+    tongThu += toInt(t.so_tien);
+  }
+  for (const c of chi) {
+    chiMap[c.ng] = (chiMap[c.ng] || 0) + toInt(c.so_tien);
+    tongChi += toInt(c.so_tien);
+  }
+
+  const loiNhuan = tongThu - tongChi;
+  const phan = Math.round(loiNhuan / dt.length);
+
+  const rows = dt.map((pp) => {
+    const thu_p = thuMap[pp.staff_id] || 0,
+      chi_p = chiMap[pp.staff_id] || 0;
+    const dangCam = thu_p - chi_p;
+    return {
+      staff_id: pp.staff_id,
+      ho_ten: pp.ho_ten,
+      thu: thu_p,
+      chi: chi_p,
+      dangCam,
+      phanDuoc: phan,
+      chenh: dangCam - phan,
+    };
+  });
+
+  const du: any[] = [],
+    thieu: any[] = [];
+  rows.forEach((r) => {
+    if (r.chenh > 0) du.push({ ten: r.ho_ten, amt: r.chenh });
+    else if (r.chenh < 0) thieu.push({ ten: r.ho_ten, amt: -r.chenh });
+  });
+  const giaoDich: any[] = [];
+  let i = 0,
+    j = 0;
+  while (i < du.length && j < thieu.length) {
+    const m = Math.min(du[i].amt, thieu[j].amt);
+    if (m >= 1)
+      giaoDich.push({
+        tu_ten: du[i].ten,
+        den_ten: thieu[j].ten,
+        so_tien: Math.round(m),
+      });
+    du[i].amt -= m;
+    thieu[j].amt -= m;
+    if (du[i].amt < 1) i++;
+    if (thieu[j].amt < 1) j++;
+  }
+
+  return {
+    thang,
+    rows,
+    tongThu,
+    tongChi,
+    loiNhuan,
+    phanMoiNguoi: phan,
+    giaoDich,
+  };
+}

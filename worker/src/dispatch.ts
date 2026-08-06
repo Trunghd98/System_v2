@@ -48,6 +48,12 @@ const MODULE_OF: Record<string, string> = {
   dsCongNo: "hocphi",
   danhDauThu: "hocphi",
   thuGop: "hocphi",
+  themThuKhac: "hocphi",
+  dsThuKhac: "hocphi",
+  themChi: "hocphi",
+  dsChi: "hocphi",
+  dsDoiTacLN: "hocphi",
+  doiSoat: "hocphi",
 };
 
 const handlers: Record<string, Handler> = {
@@ -95,6 +101,13 @@ const handlers: Record<string, Handler> = {
   dsCongNo: (env, p) => ketoan.dsCongNo(env.DB, p),
   danhDauThu: (env, p) => ketoan.danhDauThu(env.DB, p),
   thuGop: (env, p) => ketoan.thuGop(env.DB, p),
+  // Kế toán — thu khác / chi / đối soát
+  themThuKhac: (env, p) => ketoan.themThuKhac(env.DB, p),
+  dsThuKhac: (env, p) => ketoan.dsThuKhac(env.DB, p),
+  themChi: (env, p) => ketoan.themChi(env.DB, p),
+  dsChi: (env, p) => ketoan.dsChi(env.DB, p),
+  dsDoiTacLN: (env) => ketoan.dsDoiTacLN(env.DB),
+  doiSoat: (env, p) => ketoan.doiSoat(env.DB, p),
   // Danh mục
   dsDoiTac: (env) => danhmuc.dsDoiTac(env.DB),
 };
