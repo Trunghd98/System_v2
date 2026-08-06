@@ -6,6 +6,7 @@ import * as tuyensinh from "./repo/tuyensinh";
 import * as vanhanh from "./repo/vanhanh";
 import * as ketoan from "./repo/ketoan";
 import * as luong from "./repo/luong";
+import * as baocao from "./repo/baocao";
 
 type Handler = (env: Env, payload: any, user: SessionUser) => Promise<unknown>;
 
@@ -62,6 +63,8 @@ const MODULE_OF: Record<string, string> = {
   chiHoaHong: "hoahong",
   luongNV: "luongnv",
   traLuongNV: "luongnv",
+  // Báo cáo
+  dashboard: "baocao",
 };
 
 const handlers: Record<string, Handler> = {
@@ -124,6 +127,8 @@ const handlers: Record<string, Handler> = {
   // Lương — nhân viên
   luongNV: (env, p, u) => luong.luongNV(env.DB, p, u),
   traLuongNV: (env, p, u) => luong.traLuongNV(env.DB, p, u),
+  // Báo cáo
+  dashboard: (env, p) => baocao.dashboard(env.DB, p),
   // Danh mục
   dsDoiTac: (env) => danhmuc.dsDoiTac(env.DB),
 };
