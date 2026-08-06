@@ -5,6 +5,7 @@ import * as nhansu from "./repo/nhansu";
 import * as tuyensinh from "./repo/tuyensinh";
 import * as vanhanh from "./repo/vanhanh";
 import * as ketoan from "./repo/ketoan";
+import * as luong from "./repo/luong";
 
 type Handler = (env: Env, payload: any, user: SessionUser) => Promise<unknown>;
 
@@ -54,6 +55,13 @@ const MODULE_OF: Record<string, string> = {
   dsChi: "hocphi",
   dsDoiTacLN: "hocphi",
   doiSoat: "hocphi",
+  // Lương
+  luongGV: "luonggv",
+  traLuongGV: "luonggv",
+  dsHoaHong: "hoahong",
+  chiHoaHong: "hoahong",
+  luongNV: "luongnv",
+  traLuongNV: "luongnv",
 };
 
 const handlers: Record<string, Handler> = {
@@ -108,6 +116,14 @@ const handlers: Record<string, Handler> = {
   dsChi: (env, p) => ketoan.dsChi(env.DB, p),
   dsDoiTacLN: (env) => ketoan.dsDoiTacLN(env.DB),
   doiSoat: (env, p) => ketoan.doiSoat(env.DB, p),
+  // Lương — GV + hoa hồng
+  luongGV: (env, p, u) => luong.luongGV(env.DB, p, u),
+  traLuongGV: (env, p, u) => luong.traLuongGV(env.DB, p, u),
+  dsHoaHong: (env, p, u) => luong.dsHoaHong(env.DB, p, u),
+  chiHoaHong: (env, p, u) => luong.chiHoaHong(env.DB, p, u),
+  // Lương — nhân viên
+  luongNV: (env, p, u) => luong.luongNV(env.DB, p, u),
+  traLuongNV: (env, p, u) => luong.traLuongNV(env.DB, p, u),
   // Danh mục
   dsDoiTac: (env) => danhmuc.dsDoiTac(env.DB),
 };
