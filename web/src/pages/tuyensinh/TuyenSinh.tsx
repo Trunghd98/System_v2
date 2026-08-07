@@ -1,6 +1,7 @@
-import "./ui.css";
 import { useState } from "react";
 import KhoaHoc from "./KhoaHoc";
+import HocVien from "./HocVien";
+import GhiDanh from "./GhiDanh";
 
 const TABS = [
   { id: "khoahoc", label: "Khóa học" },
@@ -27,20 +28,8 @@ export default function TuyenSinh() {
         ))}
       </div>
       {tab === "khoahoc" && <KhoaHoc />}
-      {tab === "hocvien" && (
-        <div className="tcnf-card">
-          <p style={{ margin: 0, color: "var(--ink-soft)" }}>
-            Học viên — dựng ở phần kế tiếp.
-          </p>
-        </div>
-      )}
-      {tab === "ghidanh" && (
-        <div className="tcnf-card">
-          <p style={{ margin: 0, color: "var(--ink-soft)" }}>
-            Ghi danh — dựng ở phần kế tiếp.
-          </p>
-        </div>
-      )}
+      {tab === "hocvien" && <HocVien />}
+      {tab === "ghidanh" && <GhiDanh />}
     </div>
   );
 }

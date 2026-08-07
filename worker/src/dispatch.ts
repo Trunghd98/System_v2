@@ -24,6 +24,7 @@ const MODULE_OF: Record<string, string> = {
   dsHocVien: "tuyensinh",
   themHocVien: "tuyensinh",
   capNhatHocVien: "tuyensinh",
+  xoaHocVien: "tuyensinh",
   dsChamSoc: "tuyensinh",
   themChamSoc: "tuyensinh",
   dsNguoiGioiThieu: "tuyensinh",
@@ -83,6 +84,7 @@ const handlers: Record<string, Handler> = {
   dsHocVien: (env) => tuyensinh.dsHocVien(env.DB),
   themHocVien: (env, p) => tuyensinh.themHocVien(env.DB, p),
   capNhatHocVien: (env, p) => tuyensinh.capNhatHocVien(env.DB, p),
+  xoaHocVien: (env, p) => tuyensinh.xoaHocVien(env.DB, p),
   // Tuyển sinh — chăm sóc
   dsChamSoc: (env, p) => tuyensinh.dsChamSoc(env.DB, p),
   themChamSoc: (env, p, u) => tuyensinh.themChamSoc(env.DB, p, u),

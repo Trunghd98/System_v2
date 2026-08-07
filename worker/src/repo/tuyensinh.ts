@@ -43,6 +43,7 @@ export async function capNhatKhoaHoc(db: D1Database, p: any) {
   if (!res.meta.changes) throw loi("Không tìm thấy khóa: " + khoa_id, 404);
   return { ok: true };
 }
+
 export async function xoaKhoaHoc(db: D1Database, p: any) {
   const khoa_id = String(p.khoa_id || "").trim();
   if (!khoa_id) throw loi("Thiếu khoa_id");
@@ -94,6 +95,31 @@ function nowVN(): string {
   return day + " " + time;
 }
 
+async function timTrung(
+  db: D1Database,
+  ho_ten: string,
+  sdt: string,
+  exceptMa: string | null,
+): Promise<string | null> {
+  const hn = ho_ten.trim().toLowerCase().replace(/\s+/g, " ");
+  const s = sdt.trim();
+  if (!hn || !s) return null;
+  const rows = await query<any>(
+    db,
+    "SELECT ma_dinh_danh, ho_ten_hv FROM hocvien WHERE sdt_ph=?",
+    s,
+  );
+  for (const r of rows) {
+    if (exceptMa && r.ma_dinh_danh === exceptMa) continue;
+    const rn = String(r.ho_ten_hv || "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+    if (rn === hn) return r.ma_dinh_danh;
+  }
+  return null;
+}
+
 export async function dsHocVien(db: D1Database) {
   return query(
     db,
@@ -105,14 +131,14 @@ export async function themHocVien(db: D1Database, p: any) {
   const ho_ten = String(p.ho_ten_hv || "").trim();
   if (!ho_ten) throw loi("Thiếu tên học viên");
   const sdt = String(p.sdt_ph || "").trim();
-  if (sdt) {
-    const dup = await one(
-      db,
-      "SELECT ma_dinh_danh FROM hocvien WHERE sdt_ph = ?",
-      sdt,
+  const trung = await timTrung(db, ho_ten, sdt, null);
+  if (trung)
+    throw loi(
+      "Đã có học viên trùng tên và SĐT (mã " +
+        trung +
+        "). Nếu là anh/chị em khác, hãy đổi tên cho đúng.",
+      409,
     );
-    if (dup) throw loi("Đã có học viên với SĐT này: " + sdt, 409);
-  }
   const ym = thangKeyVN();
   const seq = await nextSeq(db, "HV_" + ym);
   const ma = "U" + ym + b36(seq, 3);
@@ -139,6 +165,14 @@ export async function themHocVien(db: D1Database, p: any) {
 export async function capNhatHocVien(db: D1Database, p: any) {
   const ma = String(p.ma_dinh_danh || "").trim();
   if (!ma) throw loi("Thiếu ma_dinh_danh");
+  const trung = await timTrung(
+    db,
+    String(p.ho_ten_hv || ""),
+    String(p.sdt_ph || ""),
+    ma,
+  );
+  if (trung)
+    throw loi("Trùng học viên khác cùng tên + SĐT (mã " + trung + ").", 409);
   const res = await run(
     db,
     "UPDATE hocvien SET ho_ten_hv=?, nam_sinh=?, ho_ten_ph=?, sdt_ph=?, lien_lac_hv=?, nguon=?, nguoi_gt_loai=?, nguoi_gt_id=?, sale_phu_trach=?, trang_thai=?, ghi_chu=? WHERE ma_dinh_danh=?",
@@ -155,6 +189,25 @@ export async function capNhatHocVien(db: D1Database, p: any) {
     p.ghi_chu || "",
     ma,
   );
+  if (!res.meta.changes) throw loi("Không tìm thấy học viên: " + ma, 404);
+  return { ok: true };
+}
+
+export async function xoaHocVien(db: D1Database, p: any) {
+  const ma = String(p.ma_dinh_danh || "").trim();
+  if (!ma) throw loi("Thiếu ma_dinh_danh");
+  const gd = await one(
+    db,
+    "SELECT ghidanh_id FROM ghidanh WHERE ma_dinh_danh=? LIMIT 1",
+    ma,
+  );
+  if (gd)
+    throw loi(
+      "Học viên đã có ghi danh — không thể xóa. Hãy đổi trạng thái.",
+      409,
+    );
+  await run(db, "DELETE FROM lichsu_chamsoc WHERE ma_dinh_danh=?", ma);
+  const res = await run(db, "DELETE FROM hocvien WHERE ma_dinh_danh=?", ma);
   if (!res.meta.changes) throw loi("Không tìm thấy học viên: " + ma, 404);
   return { ok: true };
 }
