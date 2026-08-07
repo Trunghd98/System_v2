@@ -1,0 +1,21 @@
+.tcnf-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 520px) {
+  .tcnf-grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+.tcnf-tablewrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.tcnf-pagehead {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 8px;
+  flex-wrap: wrap;
+}

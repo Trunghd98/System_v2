@@ -43,6 +43,33 @@ export async function capNhatKhoaHoc(db: D1Database, p: any) {
   if (!res.meta.changes) throw loi("Không tìm thấy khóa: " + khoa_id, 404);
   return { ok: true };
 }
+export async function xoaKhoaHoc(db: D1Database, p: any) {
+  const khoa_id = String(p.khoa_id || "").trim();
+  if (!khoa_id) throw loi("Thiếu khoa_id");
+  const dungLop = await one(
+    db,
+    "SELECT lop_id FROM lop WHERE khoa_id=? LIMIT 1",
+    khoa_id,
+  );
+  if (dungLop)
+    throw loi(
+      'Khóa đang có lớp — không thể xóa. Hãy đổi trạng thái sang "đã_đóng".',
+      409,
+    );
+  const dungGD = await one(
+    db,
+    "SELECT ghidanh_id FROM ghidanh WHERE khoa_id=? LIMIT 1",
+    khoa_id,
+  );
+  if (dungGD)
+    throw loi(
+      'Khóa đã có ghi danh — không thể xóa. Hãy đổi trạng thái sang "đã_đóng".',
+      409,
+    );
+  const res = await run(db, "DELETE FROM khoahoc WHERE khoa_id=?", khoa_id);
+  if (!res.meta.changes) throw loi("Không tìm thấy khóa: " + khoa_id, 404);
+  return { ok: true };
+}
 
 /* ==================== HỌC VIÊN / LEAD ==================== */
 

@@ -65,9 +65,20 @@ export default function KhoaHoc() {
     }
   }
 
+  async function xoa(k: Khoa) {
+    if (!window.confirm(`Xóa khóa "${k.ten_khoa}" (${k.khoa_id})?`)) return;
+    setErr("");
+    try {
+      await goiAPI("xoaKhoaHoc", { khoa_id: k.khoa_id });
+      await taiDL();
+    } catch (e: any) {
+      setErr(e.message);
+    }
+  }
+
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+      <div className="tcnf-pagehead">
         <h3 style={{ margin: 0, color: "var(--navy)" }}>Khóa học</h3>
         <div style={{ marginLeft: "auto" }}>
           <Btn onClick={() => setForm({ ...RONG, _moi: true })}>
@@ -77,9 +88,14 @@ export default function KhoaHoc() {
       </div>
       {err && <p style={{ color: "var(--danger)" }}>{err}</p>}
 
-      <div className="tcnf-card" style={{ padding: 0, overflow: "auto" }}>
+      <div className="tcnf-card tcnf-tablewrap" style={{ padding: 0 }}>
         <table
-          style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: 14,
+            minWidth: 720,
+          }}
         >
           <thead>
             <tr
@@ -128,12 +144,31 @@ export default function KhoaHoc() {
                     <span className="badge badge--muted">{k.trang_thai}</span>
                   </td>
                   <td style={tdStyle}>
-                    <Btn
-                      kind="ghost"
-                      onClick={() => setForm({ ...k, _moi: false })}
+                    <div
+                      style={{ display: "flex", gap: 6, whiteSpace: "nowrap" }}
                     >
-                      Sửa
-                    </Btn>
+                      <Btn
+                        kind="ghost"
+                        onClick={() => setForm({ ...k, _moi: false })}
+                      >
+                        Sửa
+                      </Btn>
+                      <button
+                        onClick={() => xoa(k)}
+                        style={{
+                          background: "var(--danger-bg)",
+                          color: "var(--danger)",
+                          border: "none",
+                          borderRadius: 12,
+                          padding: "9px 14px",
+                          fontWeight: 600,
+                          fontSize: 14,
+                          cursor: "pointer",
+                        }}
+                      >
+                        Xóa
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -164,9 +199,7 @@ export default function KhoaHoc() {
               onChange={(e) => setForm({ ...form, ten_khoa: e.target.value })}
             />
           </Field>
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}
-          >
+          <div className="tcnf-grid2">
             <Field label="Ngôn ngữ">
               <input
                 style={inputStyle}
@@ -185,9 +218,7 @@ export default function KhoaHoc() {
               </select>
             </Field>
           </div>
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}
-          >
+          <div className="tcnf-grid2">
             <Field label="Số buổi mặc định">
               <input
                 style={inputStyle}

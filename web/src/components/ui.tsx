@@ -1,3 +1,4 @@
+import "./ui.css";
 import type { ReactNode, CSSProperties } from "react";
 
 const overlay: CSSProperties = {

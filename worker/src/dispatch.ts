@@ -78,6 +78,7 @@ const handlers: Record<string, Handler> = {
   dsKhoaHoc: (env) => tuyensinh.dsKhoaHoc(env.DB),
   themKhoaHoc: (env, p) => tuyensinh.themKhoaHoc(env.DB, p),
   capNhatKhoaHoc: (env, p) => tuyensinh.capNhatKhoaHoc(env.DB, p),
+  xoaKhoaHoc: (env, p) => tuyensinh.xoaKhoaHoc(env.DB, p),
   // Tuyển sinh — học viên
   dsHocVien: (env) => tuyensinh.dsHocVien(env.DB),
   themHocVien: (env, p) => tuyensinh.themHocVien(env.DB, p),

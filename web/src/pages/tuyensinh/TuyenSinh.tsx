@@ -1,3 +1,4 @@
+import "./ui.css";
 import { useState } from "react";
 import KhoaHoc from "./KhoaHoc";
 
