@@ -5,7 +5,12 @@ import Login from "./pages/Login";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import ModulePage from "./pages/ModulePage";
+import TuyenSinh from "./pages/tuyensinh/TuyenSinh";
 import { MODULES } from "./lib/modules";
+
+const PAGES: Record<string, ReactNode> = {
+  tuyensinh: <TuyenSinh />,
+};
 
 function CanModule({ mod, children }: { mod: string; children: ReactNode }) {
   const { user } = useAuth();
@@ -37,7 +42,7 @@ function Shell() {
               path={m.path}
               element={
                 <CanModule mod={m.id}>
-                  <ModulePage ten={m.label} />
+                  {PAGES[m.id] ?? <ModulePage ten={m.label} />}
                 </CanModule>
               }
             />
