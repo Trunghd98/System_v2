@@ -1,0 +1,124 @@
+/* ==========================================================================
+   TCNF Design Tokens — nhận diện thương hiệu Trạm Công Nghệ Funny
+   Đồng bộ với tramcongnghe.vn (navy + cam/vàng ấm + teal). Font: Inter.
+   Dùng: import file này ở web/src/main.tsx  ->  import './styles/tokens.css'
+   ========================================================================== */
+
+:root {
+  /* Thương hiệu */
+  --navy: #2f5c8f; /* chính: header, nav, tab đang chọn, biểu đồ */
+  --navy-2: #3f6fa3;
+  --orange: #e38b1e; /* nút hành động chính (Lưu/Thêm/Thu) */
+  --orange-dark: #cfa046; /* hover nút */
+  --gold: #f6b24a; /* avatar, điểm nhấn ấm */
+  --gold-light: #ffd27a;
+  --teal: #2a8ca3; /* nhấn phụ: link, timeline, viền active */
+  --cyan: #4fb3c8;
+  --paper: #f3e1b6; /* nền kem ấm cho nhãn/vùng nổi bật */
+
+  /* Nền & chữ */
+  --bg: #f7fafd; /* nền trang */
+  --card: #ffffff; /* nền thẻ */
+  --ink: #2b2b2b; /* chữ chính */
+  --ink-soft: #555555; /* chữ phụ */
+  --ink-muted: #8a93a0; /* chú thích, mờ */
+  --line: rgba(47, 92, 143, 0.12); /* viền hairline */
+
+  /* Trạng thái ngữ nghĩa */
+  --ok: #15803d;
+  --ok-bg: #dff3e6;
+  --warn: #b9731a;
+  --warn-bg: #fff4e3;
+  --danger: #c0392b;
+  --danger-bg: #fdecec;
+  --neutral: #6b7280;
+  --neutral-bg: #eef0f4;
+
+  /* Bo góc & khoảng cách */
+  --radius: 12px; /* nút, ô nhập */
+  --radius-lg: 20px; /* thẻ lớn */
+  --radius-sm: 8px;
+
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Màu theo module (tab, biểu đồ dashboard) */
+  --m-tuyensinh: #2f5c8f;
+  --m-vanhanh: #2a8ca3;
+  --m-hocphi: #e38b1e;
+  --m-luonggv: #3f6fa3;
+  --m-luongnv: #cfa046;
+  --m-hoahong: #4fb3c8;
+  --m-baocao: #2a8ca3;
+  --m-nhansu: #2f5c8f;
+}
+
+/* Nền + font mặc định (áp ở #root hoặc body) */
+:root {
+  color-scheme: light;
+}
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--bg);
+}
+
+/* ---- Lớp tiện ích cơ bản (tùy dùng, hoặc map sang Tailwind/UI kit) ---- */
+.tcnf-btn {
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 11px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+.tcnf-btn:hover {
+  background: var(--orange-dark);
+}
+.tcnf-btn--ghost {
+  background: #eef4fb;
+  color: var(--navy);
+}
+
+.tcnf-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+.tcnf-topbar {
+  background: var(--navy);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 0;
+}
+
+/* Thẻ trạng thái: nền nhạt + chữ đậm cùng tông */
+.badge {
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge--ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.badge--warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.badge--danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.badge--muted {
+  background: var(--neutral-bg);
+  color: var(--neutral);
+}
